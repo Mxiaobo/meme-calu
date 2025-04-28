@@ -1,4 +1,4 @@
-const CACHE='meme-calc-v7';
+const CACHE='meme-calc-v8';
 self.addEventListener('install',e=>{
  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['.','index.html','manifest.json','sw.js'])));
 });
