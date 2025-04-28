@@ -1,72 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meme 50-25-25 Calculator</title>
+
+<!-- 让任何元素加 hidden 都 100 % 隐藏 -->
+<style>.hidden{display:none!important}</style>
+
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 <style>
-:root{--bg:#f7f7fa;--card:#fff;--border:#e4e6eb;--text:#1f2328;--accent:#2563eb;--share:#10b981}
+:root{
+  --bg:#f7f7fa;--card:#fff;--border:#e4e6eb;--text:#1f2328;
+  --accent:#2563eb;--share:#10b981;
+}
 @media(prefers-color-scheme:dark){
-  :root{--bg:#0e0f11;--card:#1e1f23;--border:#2b2d33;--text:#e8e9ea;--accent:#3b82f6;--share:#22c55e}}
+  :root{
+    --bg:#0e0f11;--card:#1e1f23;--border:#2b2d33;--text:#e8e9ea;
+    --accent:#3b82f6;--share:#22c55e;
+  }
+}
 *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 body{margin:0;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
-.card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.6rem;max-width:440px;width:100%;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+
+/* 主卡片 */
+.card{position:relative;background:var(--card);border:1px solid var(--border);
+      border-radius:14px;padding:1.6rem;max-width:440px;width:100%;
+      box-shadow:0 4px 12px rgba(0,0,0,.15)}
 h1{margin:0 0 1.25rem;text-align:center;font-weight:700;font-size:1.35rem}
+
+/* 表单与按钮 */
 label{display:flex;flex-direction:column;font-size:.9rem;margin-top:1.1rem}
-input{margin-top:.4rem;padding:.6rem .8rem;font-size:1rem;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text)}
-button{margin-top:1.1rem;width:100%;padding:.78rem 1rem;font-size:1rem;font-weight:500;border:none;border-radius:8px;color:#fff;cursor:pointer}
-#go{background:var(--accent)} button:hover{filter:brightness(1.05)}
+input{margin-top:.4rem;padding:.6rem .8rem;font-size:1rem;border:1px solid var(--border);
+      border-radius:8px;background:transparent;color:var(--text)}
+button{margin-top:1.1rem;width:100%;padding:.78rem 1rem;font-size:1rem;font-weight:500;
+       border:none;border-radius:8px;color:#fff;cursor:pointer}
+#go{background:var(--accent)}button:hover{filter:brightness(1.05)}
+
+/* 结果表 */
 table{width:100%;border-collapse:collapse;margin-top:1.6rem;font-size:.9rem}
 th,td{padding:.55rem;border:1px solid var(--border)}th{background:rgba(0,0,0,.05)}
 tfoot td{font-weight:600;background:rgba(0,0,0,.03)}
-.hidden{display:none}
 
-/* share 小圆图标 */
+/* 右下 share 小圆 */
 #share{position:absolute;bottom:1rem;right:1rem;opacity:.6;cursor:pointer;transition:.2s;
        background:var(--card);border:1px solid var(--border);border-radius:50%;padding:.25rem}
 #share:hover{opacity:1}svg{display:block}
 
-/* -------- 分享海报板 -------- */
-#shareBoard{position:fixed;top:0;left:0;width:1200px;height:630px;padding:60px;
-            background:linear-gradient(135deg,#2563eb 0%,#8b5cf6 100%);color:#fff;
-            font-family:Inter,sans-serif;display:flex;flex-direction:column;justify-content:center;gap:18px;
-            letter-spacing:.5px}
+/* 海报板 */
+#shareBoard{
+  position:fixed;top:0;left:0;width:1200px;height:630px;padding:60px;
+  background:linear-gradient(135deg,#2563eb 0%,#8b5cf6 100%);
+  color:#fff;display:flex;flex-direction:column;justify-content:center;gap:20px;
+  font-family:Inter,sans-serif;letter-spacing:.5px
+}
 #shareBoard h2{margin:0;font-size:48px;font-weight:700;opacity:.95}
-#shareBoard .row{display:flex;justify-content:space-between;font-size:28px;font-weight:600;opacity:.9}
-#shareBoard .time{margin-top:24px;text-align:center;font-size:22px;font-weight:400;opacity:.75}
+.row{display:flex;justify-content:space-between;font-size:28px;font-weight:600;opacity:.9}
+.time{margin-top:24px;text-align:center;font-size:22px;font-weight:400;opacity:.75}
 </style>
 </head>
 <body>
 <main class="card" id="card">
-<h1>Meme 50-25-25 Calculator</h1>
+  <h1>Meme 50-25-25 Calculator</h1>
+  <label>Current Price (USDT)<input type="number" id="price" value="2" step="0.0001" min="0"></label>
+  <label>Total Allocation (USDT)<input type="number" id="alloc" value="10000" step="1" min="0"></label>
+  <button id="go">Calculate</button>
 
-<label>Current Price (USDT)<input type="number" id="price" value="2" step="0.0001" min="0"></label>
-<label>Total Allocation (USDT)<input type="number" id="alloc" value="10000" step="1" min="0"></label>
+  <div id="share" class="hidden" title="Share result">
+    <svg viewBox="0 0 24 24" width="32" height="32">
+      <path fill="currentColor"
+        d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a3.018 3.018 0 0 0 0-1.4l7.05-4.11A3 3 0 1 0 15 5a3 3 0 0 0 .04.5L8 9.62a3 3 0 1 0 0 4.76l7.04 4.12c-.02.13-.04.26-.04.4a3 3 0 1 0 3-2.82z"/>
+    </svg>
+  </div>
 
-<button id="go">Calculate</button>
-<div id="share" class="hidden" title="Share result">
-  <svg viewBox="0 0 24 24" width="32" height="32">
-    <path fill="currentColor"
-      d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a3.018 3.018 0 0 0 0-1.4l7.05-4.11A3 3 0 1 0 15 5a3 3 0 0 0 .04.5L8 9.62a3 3 0 1 0 0 4.76l7.04 4.12c-.02.13-.04.26-.04.4a3 3 0 1 0 3-2.82z"/>
-  </svg>
-</div>
-
-<table id="out" class="hidden">
-<thead><tr><th>Stage</th><th>Invest</th><th>Price</th><th>Units</th></tr></thead>
-<tbody id="rows"></tbody>
-<tfoot>
-<tr><td>Total Units</td><td id="tCost"></td><td></td><td id="tUnits"></td></tr>
-<tr><td>Avg Cost</td><td colspan="3" id="avg"></td></tr>
-<tr><td>Stop (p3×0.8)</td><td colspan="3" id="stop"></td></tr>
-<tr><td>TP1 (+100%,50%)</td><td colspan="3" id="tp1"></td></tr>
-<tr><td>TP2 (+300%,25%)</td><td colspan="3" id="tp2"></td></tr>
-</tfoot>
-</table>
+  <table id="out" class="hidden">
+    <thead><tr><th>Stage</th><th>Invest</th><th>Price</th><th>Units</th></tr></thead>
+    <tbody id="rows"></tbody>
+    <tfoot>
+      <tr><td>Total Units</td><td id="tCost"></td><td></td><td id="tUnits"></td></tr>
+      <tr><td>Avg Cost</td><td colspan="3" id="avg"></td></tr>
+      <tr><td>Stop (p3×0.8)</td><td colspan="3" id="stop"></td></tr>
+      <tr><td>TP1 (+100%,50%)</td><td colspan="3" id="tp1"></td></tr>
+      <tr><td>TP2 (+300%,25%)</td><td colspan="3" id="tp2"></td></tr>
+    </tfoot>
+  </table>
 </main>
 
-<!-- 美感分享板（默认隐藏在视口外） -->
 <div id="shareBoard" class="hidden">
   <h2>Meme Position Snapshot</h2>
   <div class="row"><span>Avg Cost</span><span id="sAvg"></span></div>
@@ -77,7 +96,7 @@ tfoot td{font-weight:600;background:rgba(0,0,0,.03)}
 </div>
 
 <script>
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js')}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
 const $=id=>document.getElementById(id),fmt=(n,d=4)=>(+n).toFixed(d).replace(/\.?0+$/,'')
 $('go').addEventListener('click',()=>{
   const P=parseFloat($('price').value),A=parseFloat($('alloc').value)
@@ -93,28 +112,27 @@ $('go').addEventListener('click',()=>{
   $('avg').textContent=fmt(avg);$('stop').textContent=fmt(stop)
   $('tp1').textContent=fmt(tp1);$('tp2').textContent=fmt(tp2)
 
-  /* 写入分享板 */
   $('sAvg').textContent = fmt(avg)
   $('sStop').textContent= fmt(stop)
   $('sTP1').textContent = fmt(tp1)
   $('sTP2').textContent = fmt(tp2)
   $('sTime').textContent= new Date().toLocaleString()
 })
+
 $('share').addEventListener('click',async()=>{
-  const board=$('shareBoard');board.classList.remove('hidden')
-  window.scrollTo(0,0) // 确保可视
+  const board=$('shareBoard')
+  board.classList.remove('hidden');window.scrollTo(0,0)
   const canvas=await html2canvas(board,{scale:2,backgroundColor:null,useCORS:true})
   board.classList.add('hidden')
   const blob=await new Promise(r=>canvas.toBlob(r,'image/png'))
   const file=new File([blob],'meme_snapshot.png',{type:'image/png'})
   if(navigator.canShare&&navigator.canShare({files:[file]})){
-    await navigator.share({files:[file],title:'Meme Calculator'})
+    await navigator.share({files:[file],title:'Meme Snapshot'})
   }else{
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob)
-    a.download='meme_snapshot.png';a.click();URL.revokeObjectURL(a.href)
-    alert('美感海报已下载')
+    const a=document.createElement('a')
+    a.href=URL.createObjectURL(blob);a.download='meme_snapshot.png';a.click()
+    URL.revokeObjectURL(a.href);alert('Image downloaded')
   }
 })
 </script>
-</body>
-</html>
+</body></html>
